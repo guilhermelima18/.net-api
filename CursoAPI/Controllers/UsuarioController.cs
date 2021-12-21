@@ -1,8 +1,13 @@
-﻿using CursoAPI.Filters;
+﻿using CursoAPI.Business.Entities;
+using CursoAPI.Business.Repositories;
+using CursoAPI.Filters;
+using CursoAPI.Infraestruture.Data;
+using CursoAPI.Infraestruture.Data.Repositories;
 using CursoAPI.Models;
 using CursoAPI.Models.Usuarios;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Swashbuckle.AspNetCore.Annotations;
@@ -16,6 +21,13 @@ namespace CursoAPI.Controllers
     [ApiController]
     public class UsuarioController : ControllerBase
     {
+        private readonly IUsuarioRepository _usuarioRepository;
+
+        public UsuarioController(IUsuarioRepository usuarioRepository)
+        {
+            _usuarioRepository = usuarioRepository;
+        }
+
         [SwaggerResponse(statusCode: 200, description: "Sucesso ao autenticar.", Type = typeof(LoginViewModelInput))]
         [SwaggerResponse(statusCode: 400, description: "Campos obrigatórios.", Type = typeof(ValidaCampoViewModelOutput))]
         [SwaggerResponse(statusCode: 500, description: "Erro interno", Type = typeof(ErroGenericoViewModel))]
@@ -56,11 +68,27 @@ namespace CursoAPI.Controllers
             });
         }
 
+        [SwaggerResponse(statusCode: 200, description: "Sucesso ao registrar um usuário.", Type = typeof(LoginViewModelInput))]
+        [SwaggerResponse(statusCode: 400, description: "Campos obrigatórios.", Type = typeof(ValidaCampoViewModelOutput))]
+        [SwaggerResponse(statusCode: 500, description: "Erro interno", Type = typeof(ErroGenericoViewModel))]
+
         [HttpPost]
         [Route("registrar")]
         [ValidacaoModelStateCustomizado]
         public IActionResult Registrar(RegistroViewModelInput registroViewModelInput)
         {
+            //var migracoesPendentes = contexto.Database.GetPendingMigrations();
+
+            //if (migracoesPendentes.Count() > 0) contexto.Database.Migrate();
+
+            var usuario = new Usuario();
+            usuario.Login = registroViewModelInput.Login;
+            usuario.Senha = registroViewModelInput.Senha;
+            usuario.Email = registroViewModelInput.Email;
+
+            _usuarioRepository.Adicionar(usuario);
+            _usuarioRepository.Commit();
+
             return Created("", registroViewModelInput);
         }
     }

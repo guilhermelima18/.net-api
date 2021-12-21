@@ -1,4 +1,8 @@
+using CursoAPI.Business.Repositories;
+using CursoAPI.Infraestruture.Data;
+using CursoAPI.Infraestruture.Data.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
@@ -67,6 +71,14 @@ builder.Services.AddAuthentication(x =>
         ValidateAudience = false
     };
 });
+
+builder.Services.AddDbContext<CursoDbContext>(options =>
+{
+    options.UseSqlServer(@"Server=GUILHERME-PC\\SQLEXPRESS;Database=cursoApi;Integrated Security=True", 
+        providerOptions => providerOptions.EnableRetryOnFailure());
+});
+
+builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 
 var app = builder.Build();
 

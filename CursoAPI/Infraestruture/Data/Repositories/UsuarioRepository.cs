@@ -21,5 +21,10 @@ namespace CursoAPI.Infraestruture.Data.Repositories
         {
             _contexto.SaveChanges();
         }
+
+        public Usuario ObterUsuario(string login)
+        {
+            return _contexto.Usuario.FirstOrDefault(u => u.Login == login);
+        }
     }
 }

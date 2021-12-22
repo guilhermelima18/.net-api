@@ -1,5 +1,6 @@
 ﻿using CursoAPI.Business.Entities;
 using CursoAPI.Business.Repositories;
+using CursoAPI.Configurations;
 using CursoAPI.Filters;
 using CursoAPI.Infraestruture.Data;
 using CursoAPI.Infraestruture.Data.Repositories;
@@ -22,10 +23,12 @@ namespace CursoAPI.Controllers
     public class UsuarioController : ControllerBase
     {
         private readonly IUsuarioRepository _usuarioRepository;
+        private readonly IAuthenticationService _authenticationService;
 
-        public UsuarioController(IUsuarioRepository usuarioRepository)
+        public UsuarioController(IUsuarioRepository usuarioRepository, IAuthenticationService authenticationService)
         {
             _usuarioRepository = usuarioRepository;
+            _authenticationService = authenticationService;
         }
 
         [SwaggerResponse(statusCode: 200, description: "Sucesso ao autenticar.", Type = typeof(LoginViewModelInput))]
@@ -37,29 +40,26 @@ namespace CursoAPI.Controllers
         [ValidacaoModelStateCustomizado]
         public IActionResult Logar(LoginViewModelInput loginViewModelInput)
         {
+            Usuario usuario = _usuarioRepository.ObterUsuario(loginViewModelInput.Login);
+
+            if (usuario == null)
+            {
+                return BadRequest("Houve um erro ao tentar acessar.");
+            }
+
+            //if (usuario.Senha != loginViewModelInput.Senha.GerarSenhaCriptografada())
+            //{
+            //    return BadRequest("Houve um erro ao tentar acessar.");
+            //}
+
             var usuarioViewModelOutput = new UsuarioViewModelOutput()
             {
-                Codigo = 1,
-                Login = "guilhermelima18",
-                Email = "guilhermelima18@hotmail.com"
+                Codigo = usuario.Codigo,
+                Login = loginViewModelInput.Login,
+                Email = usuario.Email
             };
 
-            var secret = Encoding.ASCII.GetBytes("MzfsT&d9gprP>!9$Es(X!5g@;ef!5sbk:jH\\2.}8ZP'qY#7");
-            var symmetricSecurityKey = new SymmetricSecurityKey(secret);
-            var securityTokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(new Claim[]
-                {
-                    new Claim(ClaimTypes.NameIdentifier, usuarioViewModelOutput.Codigo.ToString()),
-                    new Claim(ClaimTypes.Name, usuarioViewModelOutput.Login.ToString()),
-                    new Claim(ClaimTypes.Email, usuarioViewModelOutput.Email.ToString())
-                }),
-                Expires = DateTime.UtcNow.AddDays(1),
-                SigningCredentials = new SigningCredentials(symmetricSecurityKey, SecurityAlgorithms.HmacSha256Signature)
-            };
-            var jwtSecurityTokenHandler = new JwtSecurityTokenHandler();
-            var tokenGenerated = jwtSecurityTokenHandler.CreateToken(securityTokenDescriptor);
-            var token = jwtSecurityTokenHandler.WriteToken(tokenGenerated);
+            var token = _authenticationService.GerarToken(usuarioViewModelOutput);
 
             return Ok(new
             {

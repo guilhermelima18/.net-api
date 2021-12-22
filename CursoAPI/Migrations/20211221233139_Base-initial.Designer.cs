@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CursoAPI.Migrations
 {
     [DbContext(typeof(CursoDbContext))]
-    [Migration("20211221014426_Base-inicial")]
-    partial class Baseinicial
+    [Migration("20211221233139_Base-initial")]
+    partial class Baseinitial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

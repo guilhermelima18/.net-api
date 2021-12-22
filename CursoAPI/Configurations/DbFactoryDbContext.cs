@@ -9,7 +9,7 @@ namespace CursoAPI.Configurations
         public CursoDbContext CreateDbContext(string[] args)
         {
             var optionsBuilder = new DbContextOptionsBuilder<CursoDbContext>();
-            optionsBuilder.UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=cursoApi;Integrated Security=True");
+            optionsBuilder.UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=api;Integrated Security=True");
 
             CursoDbContext contexto = new CursoDbContext(optionsBuilder.Options);
 

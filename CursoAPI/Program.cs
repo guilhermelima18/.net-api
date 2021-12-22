@@ -1,4 +1,5 @@
 using CursoAPI.Business.Repositories;
+using CursoAPI.Configurations;
 using CursoAPI.Infraestruture.Data;
 using CursoAPI.Infraestruture.Data.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -74,11 +75,13 @@ builder.Services.AddAuthentication(x =>
 
 builder.Services.AddDbContext<CursoDbContext>(options =>
 {
-    options.UseSqlServer(@"Server=GUILHERME-PC\\SQLEXPRESS;Database=cursoApi;Integrated Security=True", 
+    options.UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=api;Integrated Security=True", 
         providerOptions => providerOptions.EnableRetryOnFailure());
 });
 
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+builder.Services.AddScoped<ICursoRepository, CursoRepository>();
+builder.Services.AddScoped<IAuthenticationService, JwtService>();
 
 var app = builder.Build();
 

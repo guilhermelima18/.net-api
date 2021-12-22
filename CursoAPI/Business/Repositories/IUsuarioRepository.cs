@@ -6,5 +6,6 @@ namespace CursoAPI.Business.Repositories
     {
         void Adicionar(Usuario usuario);
         void Commit();
+        Usuario ObterUsuario(string login);
     }
 }
